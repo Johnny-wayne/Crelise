@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -161,7 +160,7 @@ const LoanDetails = () => {
                   <div className="flex justify-between">
                     <span className="text-sm font-medium text-gray-600">Recomendação:</span>
                     <span className={`font-semibold ${
-                      loan.aiRecommendation === 'approve' ? 'text-green-600' : 'text-red-600'
+                      loan.aiRecommendation === 'approve' ? 'text-blue-600' : 'text-red-600'
                     }`}>
                       {loan.aiRecommendation === 'approve' ? 'Aprovar' : 'Negar'}
                     </span>
@@ -198,7 +197,7 @@ const LoanDetails = () => {
                 <div className="space-y-3">
                   <Button
                     onClick={handleApprove}
-                    className="w-full bg-emerald-600 hover:bg-emerald-700"
+                    className="w-full bg-blue-600 hover:bg-blue-700"
                   >
                     Aprovar Manualmente
                   </Button>

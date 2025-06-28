@@ -1,4 +1,3 @@
-
 import { Link } from "react-router-dom";
 import { Clock, Shield, BarChart } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -60,8 +59,8 @@ const Index = () => {
                 <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
                   <Clock className="w-8 h-8 text-blue-600" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-800 mb-4">Análise em Minutos</h3>
-                <p className="text-gray-600">
+                <h3 className="text-xl font-bold text-blue-700 mb-4">Análise em Minutos</h3>
+                <p className="text-blue-700">
                   Nossa IA processa sua solicitação rapidamente, 
                   oferecendo uma resposta em tempo real.
                 </p>
@@ -70,11 +69,11 @@ const Index = () => {
             
             <Card className="hover-scale border-0 shadow-lg">
               <CardContent className="p-8 text-center">
-                <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <Shield className="w-8 h-8 text-emerald-600" />
+                <div className="w-16 h-16 bg-violet-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <Shield className="w-8 h-8 text-violet-600" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-800 mb-4">Segurança Total</h3>
-                <p className="text-gray-600">
+                <h3 className="text-xl font-bold text-violet-700 mb-4">Segurança Total</h3>
+                <p className="text-violet-700">
                   Seus dados são protegidos com criptografia de ponta 
                   e seguimos os mais altos padrões de segurança.
                 </p>
@@ -83,11 +82,11 @@ const Index = () => {
             
             <Card className="hover-scale border-0 shadow-lg">
               <CardContent className="p-8 text-center">
-                <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <BarChart className="w-8 h-8 text-amber-600" />
+                <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <BarChart className="w-8 h-8 text-blue-400" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-800 mb-4">Taxas Justas</h3>
-                <p className="text-gray-600">
+                <h3 className="text-xl font-bold text-blue-700 mb-4">Taxas Justas</h3>
+                <p className="text-blue-700">
                   Oferecemos taxas personalizadas baseadas no seu perfil 
                   de crédito, sempre transparentes e justas.
                 </p>
@@ -108,11 +107,11 @@ const Index = () => {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link to="/simulator">
-              <Button size="lg" className="w-full sm:w-auto">
+              <Button size="lg" className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-pink-500 text-white font-bold shadow-lg hover:from-blue-700 hover:to-pink-600 transition">
                 Começar Simulação
               </Button>
             </Link>
-            <Button variant="outline" size="lg" className="w-full sm:w-auto">
+            <Button variant="outline" size="lg" className="w-full sm:w-auto bg-white text-blue-600 border-2 border-blue-400 hover:bg-blue-50 hover:text-pink-500 hover:border-pink-400 transition font-bold">
               Falar com Especialista
             </Button>
           </div>

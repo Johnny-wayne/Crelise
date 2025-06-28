@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -57,9 +56,9 @@ const AnalystDashboard = () => {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "approved":
-        return <Badge className="bg-emerald-100 text-emerald-800 hover:bg-emerald-100">Aprovado</Badge>;
+        return <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-100">Aprovado</Badge>;
       case "analyzing":
-        return <Badge className="bg-amber-100 text-amber-800 hover:bg-amber-100">Em Análise</Badge>;
+        return <Badge className="bg-blue-50 text-blue-700 hover:bg-blue-100">Em Análise</Badge>;
       case "denied":
         return <Badge className="bg-red-100 text-red-800 hover:bg-red-100">Negado</Badge>;
       default:
@@ -105,7 +104,7 @@ const AnalystDashboard = () => {
               <CardTitle className="text-sm font-medium text-gray-600">Aprovadas</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-emerald-600">{stats.approved}</div>
+              <div className="text-2xl font-bold text-blue-600">{stats.approved}</div>
             </CardContent>
           </Card>
           
@@ -123,7 +122,7 @@ const AnalystDashboard = () => {
               <CardTitle className="text-sm font-medium text-gray-600">Em Análise</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-amber-600">{stats.analyzing}</div>
+              <div className="text-2xl font-bold text-blue-500">{stats.analyzing}</div>
             </CardContent>
           </Card>
         </div>
@@ -182,8 +181,8 @@ const AnalystDashboard = () => {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                           <span className={`font-medium ${
-                            loan.creditScore >= 700 ? 'text-green-600' :
-                            loan.creditScore >= 600 ? 'text-yellow-600' :
+                            loan.creditScore >= 700 ? 'text-blue-600' :
+                            loan.creditScore >= 600 ? 'text-violet-600' :
                             'text-red-600'
                           }`}>
                             {loan.creditScore}
