@@ -1,8 +1,8 @@
-// Header do site: contém logo, menu de navegação e botões de ação (Login, Abra sua Conta ou Sair)
-// Estrutura responsiva, com alinhamento: logo à esquerda, menu centralizado, botões à direita
 
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { Sparkles, Menu, X } from "lucide-react";
+import { useState } from "react";
 
 interface HeaderProps {
   user?: {
@@ -12,52 +12,134 @@ interface HeaderProps {
 }
 
 const Header = ({ user, onLogout }: HeaderProps) => {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
   return (
-    // Header fixo no topo, fundo branco, borda inferior
-    <header className="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-50">
-      {/* Container com largura máxima e padding responsivo */}
-      <div className="max-w-full mx-auto px-6 sm:px-10 lg:px-16">
-        {/* Flex para alinhar logo, menu e botões */}
+    <header className="bg-gradient-to-r from-slate-900/95 via-purple-900/95 to-indigo-900/95 backdrop-blur-xl border-b border-purple-500/20 sticky top-0 z-50 shadow-2xl">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">
-          {/* Logo à esquerda, simples e marcante */}
-          <div className="flex items-center min-w-[220px]">
-            <Link to="/" className="text-3xl font-extrabold tracking-tight text-blue-700 select-none">
-              CrediAnálise Pro
+          <div className="flex items-center">
+            <Link to="/" className="flex items-center space-x-3 hover:opacity-90 transition-all duration-300 group">
+              <div className="w-10 h-10 bg-gradient-to-br from-indigo-400 via-purple-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-purple-500/50 transition-all duration-300 group-hover:scale-110">
+                <Sparkles className="w-6 h-6 text-white animate-pulse" />
+              </div>
+              <span className="text-2xl font-bold bg-gradient-to-r from-white via-purple-200 to-indigo-200 bg-clip-text text-transparent">
+                CrediAnálise Pro
+              </span>
             </Link>
+            
+            {/* Desktop Navigation */}
+            <nav className="hidden lg:flex ml-12 space-x-8">
+              <Link to="/" className="text-slate-200 hover:text-white transition-all duration-300 font-medium relative group">
+                Início
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-400 to-indigo-400 group-hover:w-full transition-all duration-300"></span>
+              </Link>
+              <a href="#sobre" className="text-slate-200 hover:text-white transition-all duration-300 font-medium relative group">
+                Sobre Nós
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-400 to-indigo-400 group-hover:w-full transition-all duration-300"></span>
+              </a>
+              <a href="#como-funciona" className="text-slate-200 hover:text-white transition-all duration-300 font-medium relative group">
+                Como Funciona
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-400 to-indigo-400 group-hover:w-full transition-all duration-300"></span>
+              </a>
+            </nav>
           </div>
-          {/* Menu centralizado, espaçamento generoso */}
-          <nav className="hidden md:flex flex-1 justify-center space-x-12">
-            <Link to="/" className="text-gray-800 text-lg font-medium hover:text-blue-600 transition-colors">
-              Início
-            </Link>
-            <a href="#sobre" className="text-gray-800 text-lg font-medium hover:text-blue-600 transition-colors">
-              Sobre Nós
-            </a>
-            <a href="#como-funciona" className="text-gray-800 text-lg font-medium hover:text-blue-600 transition-colors">
-              Como Funciona
-            </a>
-          </nav>
-          {/* Botões à direita, arredondados e modernos */}
-          <div className="flex items-center space-x-4 min-w-[220px] justify-end">
+          
+          {/* Desktop Actions */}
+          <div className="hidden lg:flex items-center space-x-4">
             {user ? (
               <div className="flex items-center space-x-4">
-                <span className="text-gray-700 font-semibold">Olá, {user.name}</span>
-                <Button variant="outline" onClick={onLogout} className="rounded-full border-2 border-blue-500 text-blue-600 bg-white font-bold px-5 py-2 hover:bg-blue-50 hover:text-blue-700 transition">
+                <div className="flex items-center space-x-3 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full border border-white/20">
+                  <div className="w-10 h-10 bg-gradient-to-br from-indigo-400 to-purple-500 rounded-full flex items-center justify-center shadow-lg">
+                    <span className="text-white text-sm font-bold">
+                      {user.name.charAt(0)}
+                    </span>
+                  </div>
+                  <span className="text-white font-medium">Olá, {user.name}</span>
+                </div>
+                <Button 
+                  variant="outline" 
+                  onClick={onLogout} 
+                  className="border-purple-400/50 text-purple-200 hover:text-white hover:border-purple-300 hover:bg-purple-500/20 backdrop-blur-sm transition-all duration-300"
+                >
                   Sair
                 </Button>
               </div>
             ) : (
               <>
-                <Button variant="outline" className="rounded-full border-2 border-blue-500 text-blue-600 bg-white font-bold px-5 py-2 hover:bg-blue-50 hover:text-blue-700 transition">
+                <Button 
+                  variant="outline" 
+                  className="border-purple-400/50 text-purple-200 hover:text-white hover:border-purple-300 hover:bg-purple-500/20 backdrop-blur-sm transition-all duration-300"
+                >
                   Login
                 </Button>
-                <Button className="rounded-full bg-blue-600 text-white font-bold px-6 py-2 shadow-md hover:bg-blue-700 transition">
+                <Button className="bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-500 hover:from-indigo-600 hover:via-purple-700 hover:to-pink-600 text-white shadow-xl hover:shadow-purple-500/50 transition-all duration-300 transform hover:scale-105 font-semibold px-6">
                   Abra sua Conta
                 </Button>
               </>
             )}
           </div>
+
+          {/* Mobile Menu Button */}
+          <div className="lg:hidden">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="text-white hover:bg-purple-500/20"
+            >
+              {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </Button>
+          </div>
         </div>
+
+        {/* Mobile Menu */}
+        {isMobileMenuOpen && (
+          <div className="lg:hidden py-4 border-t border-purple-500/20">
+            <nav className="flex flex-col space-y-4">
+              <Link to="/" className="text-slate-200 hover:text-white transition-colors font-medium px-4 py-2">
+                Início
+              </Link>
+              <a href="#sobre" className="text-slate-200 hover:text-white transition-colors font-medium px-4 py-2">
+                Sobre Nós
+              </a>
+              <a href="#como-funciona" className="text-slate-200 hover:text-white transition-colors font-medium px-4 py-2">
+                Como Funciona
+              </a>
+              
+              <div className="flex flex-col space-y-3 px-4 pt-4 border-t border-purple-500/20">
+                {user ? (
+                  <>
+                    <div className="flex items-center space-x-3">
+                      <div className="w-8 h-8 bg-gradient-to-br from-indigo-400 to-purple-500 rounded-full flex items-center justify-center">
+                        <span className="text-white text-sm font-bold">
+                          {user.name.charAt(0)}
+                        </span>
+                      </div>
+                      <span className="text-white font-medium">Olá, {user.name}</span>
+                    </div>
+                    <Button 
+                      variant="outline" 
+                      onClick={onLogout} 
+                      className="border-purple-400/50 text-purple-200 hover:text-white hover:border-purple-300 hover:bg-purple-500/20"
+                    >
+                      Sair
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Button variant="outline" className="border-purple-400/50 text-purple-200 hover:text-white hover:border-purple-300 hover:bg-purple-500/20">
+                      Login
+                    </Button>
+                    <Button className="bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-500 hover:from-indigo-600 hover:via-purple-700 hover:to-pink-600 text-white">
+                      Abra sua Conta
+                    </Button>
+                  </>
+                )}
+              </div>
+            </nav>
+          </div>
+        )}
       </div>
     </header>
   );
