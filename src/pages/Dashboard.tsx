@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -8,6 +8,7 @@ import Header from "@/components/Header";
 const Dashboard = () => {
   const [user] = useState({ name: "João Silva" });
   const [loans, setLoans] = useState<any[]>([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const storedLoans = JSON.parse(localStorage.getItem("loans") || "null");
@@ -60,7 +61,7 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header user={user} onLogout={handleLogout} />
+      <Header />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
@@ -91,7 +92,12 @@ const Dashboard = () => {
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
                     {loans.map((loan) => (
-                      <tr key={loan.id} className="hover:bg-gray-50 border-gray-200">
+                      <tr
+                        key={loan.id}
+                        className="hover:bg-blue-50 cursor-pointer border-gray-200 transition"
+                        onClick={() => navigate(`/analise/${loan.id}`)}
+                        title="Ver análise detalhada"
+                      >
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-gray-200">
                           {new Date(loan.date).toLocaleDateString('pt-BR')}
                         </td>

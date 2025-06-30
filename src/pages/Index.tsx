@@ -110,7 +110,7 @@ const Index = () => {
       </section>
 
       {/* Seção CTA - Call to Action final */}
-      <section className="py-20 bg-gradient-to-br from-violet-100 via-blue-50 to-blue-200 border-t border-gray-100">
+      <section className="py-32 bg-gradient-to-br from-violet-100 via-blue-50 to-blue-200 border-t border-gray-100">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           {/* Título motivacional */}
           <h2 className="text-3xl font-bold text-violet-700 mb-6">
