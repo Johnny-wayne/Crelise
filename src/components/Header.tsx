@@ -85,11 +85,6 @@ const Header = () => {
                     Login
                   </Button>
                 </Link>
-                <Button 
-                  className="bg-blue-600 text-white hover:bg-blue-700 rounded-xl transition"
-                >
-                  Login
-                </Button>
                 <Button className="bg-gray-900 text-white hover:bg-gray-800 transition font-semibold px-6">
                   Abra sua Conta
                 </Button>
