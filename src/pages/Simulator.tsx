@@ -9,6 +9,16 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "@/hooks/use-toast";
 import Header from "@/components/Header";
 import Stepper from "@/components/Stepper";
+import ValidatedInput from "@/components/ValidatedInput";
+import { 
+  validateStep, 
+  formatCPF, 
+  formatPhone, 
+  formatCurrency,
+  validateField,
+  type CompleteFormData 
+} from "@/lib/validation";
+import { cn } from "@/lib/utils";
 
 // Tela de Simulação de Empréstimo
 // Passos: 1) Simulação, 2) Dados Pessoais, 3) Dados Financeiros, 4) Revisão
@@ -27,7 +37,9 @@ const Simulator = () => {
   // Estado para controlar o passo atual do formulário
   const [currentStep, setCurrentStep] = useState(1);
   // Estado para armazenar todos os dados do formulário
-  const [formData, setFormData] = useState({
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  
+  const [formData, setFormData] = useState<CompleteFormData>({
     amount: 10000, // Valor do empréstimo
     installments: 12, // Número de parcelas
     fullName: "",
@@ -46,10 +58,60 @@ const Simulator = () => {
   // Nomes dos passos para o Stepper
   const steps = ["Simulação", "Dados Pessoais", "Dados Financeiros", "Revisão"];
 
+  // Função para validar o passo atual
+  const validateCurrentStep = () => {
+    const stepData = getStepData(currentStep);
+    const validation = validateStep(currentStep, stepData);
+    
+    if (!validation.isValid) {
+      setErrors(validation.errors);
+      return false;
+    }
+    
+    setErrors({});
+    return true;
+  };
+
+  // Função para obter dados do passo atual
+  const getStepData = (step: number) => {
+    switch (step) {
+      case 1:
+        return { amount: formData.amount, installments: formData.installments };
+      case 2:
+        return {
+          fullName: formData.fullName,
+          cpf: formData.cpf,
+          email: formData.email,
+          phone: formData.phone,
+          birthDate: formData.birthDate,
+        };
+      case 3:
+        return {
+          profession: formData.profession,
+          income: formData.income,
+          monthlyExpenses: formData.monthlyExpenses,
+          hasProperty: formData.hasProperty,
+          hasVehicle: formData.hasVehicle,
+        };
+      case 4:
+        return { agreeToTerms: formData.agreeToTerms };
+      default:
+        return {};
+    }
+  };
+
   // Avança para o próximo passo
   const handleNext = () => {
-    if (currentStep < 4) {
-      setCurrentStep(currentStep + 1);
+    if (validateCurrentStep()) {
+      if (currentStep < 4) {
+        setCurrentStep(currentStep + 1);
+      }
+    } else {
+      toast({
+        title: "Erro de Validação",
+        description: "Por favor, corrija os campos obrigatórios antes de continuar.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -57,8 +119,22 @@ const Simulator = () => {
   const handlePrevious = () => {
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1);
+      setErrors({});
     }
   };
+
+  // Função "IA" simples para análise de empréstimo
+  function analisarEmprestimo({ income, monthlyExpenses, amount }) {
+    const renda = Number(income) || 0;
+    const despesas = Number(monthlyExpenses) || 0;
+    if (renda - despesas > amount / 10) {
+      return 'approved';
+    }
+    if (renda - despesas > amount / 20) {
+      return 'analyzing';
+    }
+    return 'denied';
+  }
 
   // Envia a solicitação final
   const handleSubmit = () => {
@@ -70,6 +146,35 @@ const Simulator = () => {
       });
       return;
     }
+
+    // Validação final completa
+    const validation = validateStep(4, { agreeToTerms: formData.agreeToTerms });
+    if (!validation.isValid) {
+      setErrors(validation.errors);
+      toast({
+        title: "Erro de Validação",
+        description: "Por favor, corrija os campos obrigatórios antes de enviar.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Salvar empréstimo no localStorage
+    const status = analisarEmprestimo({
+      income: formData.income,
+      monthlyExpenses: formData.monthlyExpenses,
+      amount: formData.amount,
+    });
+    const newLoan = {
+      id: Date.now(),
+      date: new Date().toISOString().slice(0, 10),
+      amount: formData.amount,
+      installments: formData.installments,
+      status,
+    };
+    const existingLoans = JSON.parse(localStorage.getItem("loans") || "[]");
+    localStorage.setItem("loans", JSON.stringify([newLoan, ...existingLoans]));
+
     toast({
       title: "Solicitação enviada!",
       description: "Sua solicitação foi enviada com sucesso. Você será redirecionado para o dashboard.",
@@ -109,15 +214,28 @@ const Simulator = () => {
                     <h2 className="text-2xl font-bold text-blue-800 mb-6">Quanto você precisa?</h2>
                     {/* Input e slider para valor do empréstimo */}
                     <div>
-                      <Label htmlFor="amount" className="text-lg font-semibold text-blue-700">Valor do Empréstimo</Label>
+                      <Label htmlFor="amount" className="text-lg font-semibold text-blue-700">
+                        Valor do Empréstimo *
+                      </Label>
                       <div className="mt-3">
                         <Input
                           id="amount"
                           type="number"
                           value={formData.amount}
                           onChange={(e) => setFormData({ ...formData, amount: Number(e.target.value) })}
-                          className="text-lg bg-white border-2 border-blue-200 focus:border-pink-400 focus:ring-2 focus:ring-pink-200 transition shadow-sm"
+                          className={cn(
+                            "text-lg bg-white border-2 transition shadow-sm",
+                            errors.amount 
+                              ? "border-red-300 focus:border-red-500 focus:ring-2 focus:ring-red-200" 
+                              : "border-blue-200 focus:border-pink-400 focus:ring-2 focus:ring-pink-200"
+                          )}
+                          min={1000}
+                          max={100000}
+                          step={1000}
                         />
+                        {errors.amount && (
+                          <p className="text-sm text-red-500 font-medium mt-1">{errors.amount}</p>
+                        )}
                         <Slider
                           value={[formData.amount]}
                           onValueChange={(value) => setFormData({ ...formData, amount: value[0] })}
@@ -134,15 +252,28 @@ const Simulator = () => {
                     </div>
                     {/* Input e slider para número de parcelas */}
                     <div>
-                      <Label htmlFor="installments" className="text-lg font-semibold text-blue-700">Número de Parcelas</Label>
+                      <Label htmlFor="installments" className="text-lg font-semibold text-blue-700">
+                        Número de Parcelas *
+                      </Label>
                       <div className="mt-3">
                         <Input
                           id="installments"
                           type="number"
                           value={formData.installments}
                           onChange={(e) => setFormData({ ...formData, installments: Number(e.target.value) })}
-                          className="text-lg bg-white border-2 border-blue-200 focus:border-pink-400 focus:ring-2 focus:ring-pink-200 transition shadow-sm"
+                          className={cn(
+                            "text-lg bg-white border-2 transition shadow-sm",
+                            errors.installments 
+                              ? "border-red-300 focus:border-red-500 focus:ring-2 focus:ring-red-200" 
+                              : "border-blue-200 focus:border-pink-400 focus:ring-2 focus:ring-pink-200"
+                          )}
+                          min={6}
+                          max={60}
+                          step={1}
                         />
+                        {errors.installments && (
+                          <p className="text-sm text-red-500 font-medium mt-1">{errors.installments}</p>
+                        )}
                         <Slider
                           value={[formData.installments]}
                           onValueChange={(value) => setFormData({ ...formData, installments: value[0] })}
@@ -165,51 +296,66 @@ const Simulator = () => {
                     <h2 className="text-2xl font-bold text-blue-800 mb-6">Sobre Você</h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       {/* Inputs para nome, CPF, email, telefone, data de nascimento */}
-                      <div>
-                        <Label htmlFor="fullName" className="text-blue-700">Nome Completo</Label>
-                        <Input
-                          id="fullName"
-                          value={formData.fullName}
-                          onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                          className="bg-white border-2 border-blue-200 focus:border-pink-400 focus:ring-2 focus:ring-pink-200 transition shadow-sm"
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="cpf" className="text-blue-700">CPF</Label>
-                        <Input
-                          id="cpf"
-                          value={formData.cpf}
-                          onChange={(e) => setFormData({ ...formData, cpf: e.target.value })}
-                          className="bg-white border-2 border-blue-200 focus:border-pink-400 focus:ring-2 focus:ring-pink-200 transition shadow-sm"
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="email" className="text-blue-700">Email</Label>
-                        <Input
-                          id="email"
-                          type="email"
-                          value={formData.email}
-                          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                          className="bg-white border-2 border-blue-200 focus:border-pink-400 focus:ring-2 focus:ring-pink-200 transition shadow-sm"
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="phone" className="text-blue-700">Telefone com DDD</Label>
-                        <Input
-                          id="phone"
-                          value={formData.phone}
-                          onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                          className="bg-white border-2 border-blue-200 focus:border-pink-400 focus:ring-2 focus:ring-pink-200 transition shadow-sm"
-                        />
-                      </div>
+                      <ValidatedInput
+                        id="fullName"
+                        label="Nome Completo"
+                        value={formData.fullName}
+                        onChange={(value) => setFormData({ ...formData, fullName: value })}
+                        error={errors.fullName}
+                        required
+                        placeholder="Digite seu nome completo"
+                        validateOnChange={true}
+                        validationFn={validateField.fullName}
+                      />
+                      <ValidatedInput
+                        id="cpf"
+                        label="CPF"
+                        value={formData.cpf}
+                        onChange={(value) => setFormData({ ...formData, cpf: value })}
+                        error={errors.cpf}
+                        required
+                        placeholder="000.000.000-00"
+                        formatValue={formatCPF}
+                        maxLength={14}
+                        validateOnChange={true}
+                        validationFn={validateField.cpf}
+                      />
+                      <ValidatedInput
+                        id="email"
+                        label="Email"
+                        type="email"
+                        value={formData.email}
+                        onChange={(value) => setFormData({ ...formData, email: value })}
+                        error={errors.email}
+                        required
+                        placeholder="seu@email.com"
+                        validateOnChange={true}
+                        validationFn={validateField.email}
+                      />
+                      <ValidatedInput
+                        id="phone"
+                        label="Telefone com DDD"
+                        value={formData.phone}
+                        onChange={(value) => setFormData({ ...formData, phone: value })}
+                        error={errors.phone}
+                        required
+                        placeholder="(00) 00000-0000"
+                        formatValue={formatPhone}
+                        maxLength={15}
+                        validateOnChange={true}
+                        validationFn={validateField.phone}
+                      />
                       <div className="md:col-span-2">
-                        <Label htmlFor="birthDate" className="text-blue-700">Data de Nascimento</Label>
-                        <Input
+                        <ValidatedInput
                           id="birthDate"
+                          label="Data de Nascimento"
                           type="date"
                           value={formData.birthDate}
-                          onChange={(e) => setFormData({ ...formData, birthDate: e.target.value })}
-                          className="bg-white border-2 border-blue-200 focus:border-pink-400 focus:ring-2 focus:ring-pink-200 transition shadow-sm"
+                          onChange={(value) => setFormData({ ...formData, birthDate: value })}
+                          error={errors.birthDate}
+                          required
+                          validateOnChange={true}
+                          validationFn={validateField.birthDate}
                         />
                       </div>
                     </div>
@@ -221,33 +367,43 @@ const Simulator = () => {
                     <h2 className="text-2xl font-bold text-blue-800 mb-6">Sua Vida Financeira</h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       {/* Inputs para profissão, renda, despesas, imóveis, veículos */}
-                      <div>
-                        <Label htmlFor="profession" className="text-blue-700">Profissão</Label>
-                        <Input
-                          id="profession"
-                          value={formData.profession}
-                          onChange={(e) => setFormData({ ...formData, profession: e.target.value })}
-                          className="bg-white border-2 border-blue-200 focus:border-pink-400 focus:ring-2 focus:ring-pink-200 transition shadow-sm"
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="income" className="text-blue-700">Renda Mensal Bruta (R$)</Label>
-                        <Input
-                          id="income"
-                          type="number"
-                          value={formData.income}
-                          onChange={(e) => setFormData({ ...formData, income: e.target.value })}
-                          className="bg-white border-2 border-blue-200 focus:border-pink-400 focus:ring-2 focus:ring-pink-200 transition shadow-sm"
-                        />
-                      </div>
+                      <ValidatedInput
+                        id="profession"
+                        label="Profissão"
+                        value={formData.profession}
+                        onChange={(value) => setFormData({ ...formData, profession: value })}
+                        error={errors.profession}
+                        required
+                        placeholder="Digite sua profissão"
+                        validateOnChange={true}
+                        validationFn={validateField.profession}
+                      />
+                      <ValidatedInput
+                        id="income"
+                        label="Renda Mensal Bruta (R$)"
+                        value={formData.income}
+                        onChange={(value) => setFormData({ ...formData, income: value })}
+                        error={errors.income}
+                        required
+                        placeholder="0,00"
+                        type="number"
+                        min={1000}
+                        validateOnChange={true}
+                        validationFn={validateField.income}
+                      />
                       <div className="md:col-span-2">
-                        <Label htmlFor="monthlyExpenses" className="text-blue-700">Valor Mensal de Outras Despesas (R$)</Label>
-                        <Input
+                        <ValidatedInput
                           id="monthlyExpenses"
-                          type="number"
+                          label="Valor Mensal de Outras Despesas (R$)"
                           value={formData.monthlyExpenses}
-                          onChange={(e) => setFormData({ ...formData, monthlyExpenses: e.target.value })}
-                          className="bg-white border-2 border-blue-200 focus:border-pink-400 focus:ring-2 focus:ring-pink-200 transition shadow-sm"
+                          onChange={(value) => setFormData({ ...formData, monthlyExpenses: value })}
+                          error={errors.monthlyExpenses}
+                          required
+                          placeholder="0,00"
+                          type="number"
+                          min={0}
+                          validateOnChange={true}
+                          validationFn={validateField.monthlyExpenses}
                         />
                       </div>
                     </div>
@@ -305,15 +461,20 @@ const Simulator = () => {
                         </div>
                       </div>
                     </div>
-                    <div className="flex items-center space-x-2">
-                      <Checkbox
-                        id="agreeToTerms"
-                        checked={formData.agreeToTerms}
-                        onCheckedChange={(checked) => setFormData({ ...formData, agreeToTerms: checked as boolean })}
-                      />
-                      <Label htmlFor="agreeToTerms" className="text-sm text-blue-700">
-                        Li e concordo com os Termos de Serviço e a Política de Privacidade
-                      </Label>
+                    <div className="space-y-2">
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="agreeToTerms"
+                          checked={formData.agreeToTerms}
+                          onCheckedChange={(checked) => setFormData({ ...formData, agreeToTerms: checked as boolean })}
+                        />
+                        <Label htmlFor="agreeToTerms" className="text-sm text-blue-700">
+                          Li e concordo com os Termos de Serviço e a Política de Privacidade *
+                        </Label>
+                      </div>
+                      {errors.agreeToTerms && (
+                        <p className="text-sm text-red-500 font-medium">{errors.agreeToTerms}</p>
+                      )}
                     </div>
                   </div>
                 )}
