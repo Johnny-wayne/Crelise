@@ -1,7 +1,12 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
+import { Button } from '../../src/components/ui/button';
 import { X, Menu } from 'lucide-react';
+
+interface HeaderProps {
+  user?: { name: string } | null;
+  onLogout?: () => void;
+}
 
 const Header = ({ user, onLogout }: HeaderProps) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
