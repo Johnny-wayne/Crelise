@@ -1,4 +1,4 @@
-# Projeto CrediAnálise Pro
+# Projeto Crelise
 
 Este é um projeto React + Vite + Tailwind CSS para simulação e análise de crédito.
 
